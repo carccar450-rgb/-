@@ -44,15 +44,15 @@
     const apiURL = "https://sheetdb.io/api/v1/m8mst2hag81hw"; 
     const weightLabels = ["ربع كيلو", "نصف كيلو", "ثلاث أرباع كيلو", "كيلو واحد", "كيلو وربع", "كيلو ونصف", "كيلو وثلاث أرباع", "كيلوين"];
 
-    // تم استخدام رابط الصورة الناجح (Unsplash) لكل الوجبات لضمان عملها
+    // تم استخدام روابط الصور التي أكدتَ أنها تعمل عندك (Unsplash) لكل الوجبات
     let menuItems = [
         { id: 'lamb', name: 'لحم غنم طازج', price: 8000, img: 'https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=200' },
         { id: 'beef_shrah', name: 'لحم عجل شرح', price: 4500, img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=200' },
         { id: 'beef_ozm', name: 'لحم عجل عظم', price: 4000, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200' },
         { id: 'kebab', name: 'كباب علي الجد', price: 4500, img: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=200' },
-        { id: 'tikka', name: 'مشوي تكّة', price: 4500, img: 'https://images.unsplash.com/photo-1633321702518-7feccaf0ad44?w=200' },
+        { id: 'tikka', name: 'مشوي تكّة', price: 4500, img: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=200' },
         { id: 'mealak', name: 'مشوي معلاك', price: 4500, img: 'https://images.unsplash.com/photo-1541544537156-7627a7a4aa1c?w=200' },
-        { id: 'wings', name: 'أجنحة دجاج مشوية', price: 4000, img: 'https://images.unsplash.com/photo-1633321702518-7feccaf0ad44?w=200' }
+        { id: 'wings', name: 'أجنحة دجاج مشوية', price: 4000, img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=200' }
     ];
 
     let cart = {};
@@ -78,7 +78,7 @@
             const step = cart[item.id];
             const weightText = step === -1 ? "لم يتم الاختيار" : (weightLabels[step] || calculateExtra(step));
             const currentItemPrice = step === -1 ? 0 : (step + 1) * item.price;
-            totalSum += currentItemPrice;
+            totalSum += currentPrice = currentItemPrice;
             const displayPrice = step === -1 ? "سعر الربع: " + item.price.toLocaleString() : currentItemPrice.toLocaleString() + " د.ع";
             menuContainer.innerHTML += `<div class="item-row">
                     <img src="${item.img}" class="item-img" alt="${item.name}" onerror="this.src='https://via.placeholder.com/150?text=Food'">
