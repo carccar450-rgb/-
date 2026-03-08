@@ -49,9 +49,9 @@
         { id: 'beef_shrah', name: 'لحم عجل شرح', price: 4500, img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=200' },
         { id: 'beef_ozm', name: 'لحم عجل عظم', price: 4000, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200' },
         { id: 'kebab', name: 'كباب علي الجد', price: 4500, img: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=200' },
-        { id: 'tikka', name: 'مشوي تكّة', price: 4500, img: 'https://images.unsplash.com/photo-1628294895950-983388939913?w=200' },
+        { id: 'tikka', name: 'مشوي تكّة', price: 4500, img: 'http://googleusercontent.com/image_collection/image_retrieval/5755278343506001801_0' },
         { id: 'mealak', name: 'مشوي معلاك', price: 4500, img: 'https://images.unsplash.com/photo-1541544537156-7627a7a4aa1c?w=200' },
-        { id: 'wings', name: 'أجنحة دجاج مشوية', price: 4000, img: 'https://telegra.ph/file/photo_2026-03-08_20-59-27.jpg' }
+        { id: 'wings', name: 'أجنحة دجاج مشوية', price: 4000, img: 'http://googleusercontent.com/image_collection/image_retrieval/6175369294592712370_1' }
     ];
 
     let cart = {};
@@ -76,3 +76,26 @@
         menuItems.forEach(item => {
             const step = cart[item.id];
             const weightText = step === -1 ? "لم يتم الاختيار" : (weightLabels[step] || calculateExtra(step));
+            const currentItemPrice = step === -1 ? 0 : (step + 1) * item.price;
+            totalSum += currentItemPrice;
+            const displayPrice = step === -1 ? "سعر الربع: " + item.price.toLocaleString() : currentItemPrice.toLocaleString() + " د.ع";
+            menuContainer.innerHTML += `<div class="item-row">
+                    <img src="${item.img}" class="item-img" onerror="this.src='https://via.placeholder.com/100?text=Food'">
+                    <div class="item-content">
+                        <span class="item-name">${item.name}</span>
+                        <div class="controls">
+                            <button class="btn btn-plus" onclick="changeQty('${item.id}', 1)">+</button>
+                            <div class="display-area">
+                                <span class="weight">${weightText}</span>
+                                <span class="price">${displayPrice}</span>
+                            </div>
+                            <button class="btn btn-minus" onclick="changeQty('${item.id}', -1)">-</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('final-total').innerText = totalSum.toLocaleString();
+    }
+
+    function calculateExtra(step) {
+        let q = step + 1; let kg = Math.floor(q / 4); let rem = q % 4;
