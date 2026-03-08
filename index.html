@@ -97,7 +97,27 @@
                             <button class="btn btn-minus" onclick="changeQty('${item.id}', -1)">-</button>
                         </div>
                     </div>
-                </div>`;
+                </div>`;<div class="menu-item card">
+    <img src="https://telegra.ph/file/photo_2026-03-08_20-59-27.jpg" alt="أجنحة دجاج مشوية" class="item-img">
+    <div class="details">
+        <h3>أجنحة دجاج مشوية</h3>
+        
+        <div class="price-row">
+            <span>الربع كيلو:</span>
+            <span class="price-val" id="price-wings_quarter">جاري التحميل...</span>
+        </div>
+        
+        <div class="price-row">
+            <span>النصف كيلو:</span>
+            <span class="price-val" id="price-wings_half">جاري التحميل...</span>
+        </div>
+
+        <div class="price-row">
+            <span>الكيلو كامل:</span>
+            <span class="price-val" id="price-wings_full">جاري التحميل...</span>
+        </div>
+    </div>
+</div>
         });
         document.getElementById('final-total').innerText = totalSum.toLocaleString();
     }
