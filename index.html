@@ -10,7 +10,7 @@
         .card { background: white; width: 100%; max-width: 500px; padding: 15px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); box-sizing: border-box; margin-bottom: 20px; }
         .header { text-align: center; color: var(--primary); font-size: 24px; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .item-row { background: #fff; border: 1px solid #eee; border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
-        .item-img { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
+        .item-img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
         .item-content { flex-grow: 1; overflow: hidden; }
         .item-name { font-size: 15px; font-weight: bold; color: var(--secondary); margin-bottom: 5px; display: block; }
         .controls { display: flex; justify-content: space-between; align-items: center; background: #fdf2e9; padding: 5px; border-radius: 8px; }
@@ -30,7 +30,7 @@
 
 <div class="card">
     <div class="header">🥘 مطعم كباب علي الجد</div>
-    <div id="full-menu">جاري تحميل القائمة...</div>
+    <div id="full-menu">جاري تحميل الأسعار...</div>
     <div class="total-box">المجموع الكلي: <span id="final-total" class="total-amount">0</span> دينار</div>
     <div class="user-info">
         <input type="text" id="userName" placeholder="اسم الزبون الكريم">
@@ -41,21 +41,33 @@
 </div>
 
 <script>
+    const apiURL = "https://sheetdb.io/api/v1/m8mst2hag81hw"; 
     const weightLabels = ["ربع كيلو", "نصف كيلو", "ثلاث أرباع كيلو", "كيلو واحد", "كيلو وربع", "كيلو ونصف", "كيلو وثلاث أرباع", "كيلوين"];
 
-    // هنا وضعت لك الأسعار مباشرة لكي لا يتوقف الموقع أبداً
     let menuItems = [
-        { id: 'lamb', name: 'لحم غنم طازج', price: 8000, img: 'https://cdn.pixabay.com/photo/2021/11/01/15/52/meat-6760851_1280.jpg' },
-        { id: 'beef_shrah', name: 'لحم عجل شرح', price: 4500, img: 'https://cdn.pixabay.com/photo/2016/03/05/19/02/hamburger-1238246_1280.jpg' },
-        { id: 'beef_ozm', name: 'لحم عجل عظم', price: 4000, img: 'https://cdn.pixabay.com/photo/2017/02/10/21/14/meat-2056263_1280.jpg' },
-        { id: 'kebab', name: 'كباب علي الجد', price: 4500, img: 'https://cdn.pixabay.com/photo/2014/11/25/14/31/kebab-545233_1280.jpg' },
-        { id: 'tikka', name: 'مشوي تكّة', price: 4500, img: 'https://cdn.pixabay.com/photo/2017/01/20/15/06/orange-1995056_1280.jpg' },
-        { id: 'mealak', name: 'مشوي معلاك', price: 4500, img: 'https://cdn.pixabay.com/photo/2015/03/26/10/28/meat-690558_1280.jpg' },
-        { id: 'wings', name: 'أجنحة دجاج مشوية', price: 4000, img: 'https://cdn.pixabay.com/photo/2016/11/18/17/42/chicken-wings-1836025_1280.jpg' }
+        { id: 'lamb', name: 'لحم غنم طازج', price: 8000, img: 'https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=200' },
+        { id: 'beef_shrah', name: 'لحم عجل شرح', price: 4500, img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=200' },
+        { id: 'beef_ozm', name: 'لحم عجل عظم', price: 4000, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200' },
+        { id: 'kebab', name: 'كباب علي الجد', price: 4500, img: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=200' },
+        { id: 'tikka', name: 'مشوي تكّة', price: 4500, img: 'https://images.unsplash.com/photo-1633321702518-7feccaf0ad44?w=200' },
+        { id: 'mealak', name: 'مشوي معلاك', price: 4500, img: 'https://images.unsplash.com/photo-1541544537156-7627a7a4aa1c?w=200' },
+        { id: 'wings', name: 'أجنحة دجاج مشوية', price: 4000, img: 'https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?w=200' }
     ];
 
     let cart = {};
     menuItems.forEach(item => cart[item.id] = -1);
+
+    async function loadPrices() {
+        try {
+            const response = await fetch(apiURL);
+            const data = await response.json();
+            data.forEach(row => {
+                const item = menuItems.find(i => i.id === row.id);
+                if (item) item.price = parseInt(row.price);
+            });
+            renderItems();
+        } catch (e) { renderItems(); }
+    }
 
     function renderItems() {
         const menuContainer = document.getElementById('full-menu');
@@ -110,9 +122,7 @@
         msg += `%0A💰 المجموع الكلي: ${document.getElementById('final-total').innerText} دينار`;
         window.open(`https://wa.me/9647807466488?text=${msg}`);
     }
-    
-    // تشغيل القائمة فور فتح الصفحة
-    window.onload = renderItems;
+    window.onload = loadPrices;
 </script>
 </body>
 </html>
