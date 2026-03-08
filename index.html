@@ -30,7 +30,7 @@
 
 <div class="card">
     <div class="header">🥘 مطعم كباب علي الجد</div>
-    <div id="full-menu">جاري تحميل الأسعار...</div>
+    <div id="full-menu">جاري تحميل القائمة...</div>
     <div class="total-box">المجموع الكلي: <span id="final-total" class="total-amount">0</span> دينار</div>
     <div class="user-info">
         <input type="text" id="userName" placeholder="اسم الزبون الكريم">
@@ -41,9 +41,9 @@
 </div>
 
 <script>
-    const apiURL = "https://sheetdb.io/api/v1/m8mst2hag81hw"; 
     const weightLabels = ["ربع كيلو", "نصف كيلو", "ثلاث أرباع كيلو", "كيلو واحد", "كيلو وربع", "كيلو ونصف", "كيلو وثلاث أرباع", "كيلوين"];
 
+    // هنا وضعت لك الأسعار مباشرة لكي لا يتوقف الموقع أبداً
     let menuItems = [
         { id: 'lamb', name: 'لحم غنم طازج', price: 8000, img: 'https://cdn.pixabay.com/photo/2021/11/01/15/52/meat-6760851_1280.jpg' },
         { id: 'beef_shrah', name: 'لحم عجل شرح', price: 4500, img: 'https://cdn.pixabay.com/photo/2016/03/05/19/02/hamburger-1238246_1280.jpg' },
@@ -56,18 +56,6 @@
 
     let cart = {};
     menuItems.forEach(item => cart[item.id] = -1);
-
-    async function loadPrices() {
-        try {
-            const response = await fetch(apiURL);
-            const data = await response.json();
-            data.forEach(row => {
-                const item = menuItems.find(i => i.id === row.id);
-                if (item) item.price = parseInt(row.price);
-            });
-            renderItems();
-        } catch (e) { renderItems(); }
-    }
 
     function renderItems() {
         const menuContainer = document.getElementById('full-menu');
@@ -98,4 +86,33 @@
     }
 
     function calculateExtra(step) {
-        let q = step + 1; let
+        let q = step + 1; let kg = Math.floor(q / 4); let rem = q % 4;
+        return kg + " كيلو " + (rem > 0 ? "و" + weightLabels[rem-1] : "");
+    }
+
+    function changeQty(id, val) { if (cart[id] + val >= -1) { cart[id] += val; renderItems(); } }
+
+    function sendWhatsApp() {
+        const name = document.getElementById('userName').value;
+        const addr = document.getElementById('userAddress').value;
+        if (!name || !addr) return alert("يرجى إدخال الاسم والعنوان");
+        let msg = `*طلب جديد لمطعم كباب علي الجد*%0A👤 الاسم: ${name}%0A📍 العنوان: ${addr}%0A%0A🍴 الطلبات:%0A`;
+        let hasItems = false;
+        menuItems.forEach(item => {
+            if (cart[item.id] !== -1) {
+                hasItems = true;
+                const q = cart[item.id] + 1;
+                const w = q <= 8 ? weightLabels[cart[item.id]] : calculateExtra(cart[item.id]);
+                msg += `- ${item.name}: ${w} (${(q * item.price).toLocaleString()} د.ع)%0A`;
+            }
+        });
+        if (!hasItems) return alert("يرجى اختيار صنف");
+        msg += `%0A💰 المجموع الكلي: ${document.getElementById('final-total').innerText} دينار`;
+        window.open(`https://wa.me/9647807466488?text=${msg}`);
+    }
+    
+    // تشغيل القائمة فور فتح الصفحة
+    window.onload = renderItems;
+</script>
+</body>
+</html>
