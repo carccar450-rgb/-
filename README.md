@@ -1,6 +1,133 @@
-# Untitled
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قصابية ومشويات علي الجد</title>
+    <style>
+        :root { --primary: #d35400; --secondary: #2c3e50; --bg: #fdfbf9; --gr: #27ae60; --rd: #e74c3c; }
+        body { font-family: 'Tahoma', sans-serif; background-color: var(--bg); padding: 10px; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .card { background: white; width: 100%; max-width: 500px; padding: 15px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); box-sizing: border-box; margin-bottom: 20px; }
+        .header { text-align: center; color: var(--primary); font-size: 24px; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .item-row { background: #fff; border: 1px solid #eee; border-radius: 15px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+        .item-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; background: #eee; }
+        .item-content { flex-grow: 1; overflow: hidden; }
+        .item-name { font-size: 15px; font-weight: bold; color: var(--secondary); margin-bottom: 5px; display: block; }
+        .controls { display: flex; justify-content: space-between; align-items: center; background: #fdf2e9; padding: 5px; border-radius: 8px; }
+        .btn { border: none; width: 35px; height: 35px; border-radius: 8px; font-size: 20px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; outline: none; }
+        .btn-plus { background-color: var(--gr); }
+        .btn-minus { background-color: var(--rd); }
+        .display-area { text-align: center; flex-grow: 1; }
+        .weight { font-size: 13px; color: #666; display: block; }
+        .price { font-size: 15px; color: var(--primary); font-weight: bold; }
+        .total-box { background: #2c3e50; color: white; padding: 15px; border-radius: 12px; text-align: center; margin: 20px 0; font-size: 20px; font-weight: bold; border: 2px solid var(--primary); }
+        .total-amount { color: #f1c40f; font-size: 24px; }
+        input { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; text-align: right; font-size: 14px; }
+        .send-btn { background-color: #25d366; color: white; border: none; width: 100%; padding: 15px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    </style>
+</head>
+<body>
 
-A Pen created on CodePen.
+<div class="card">
+    <div class="header">🥘 قصابية ومشويات علي الجد</div>
+    <div id="full-menu">جاري تحميل الأسعار...</div>
+    <div class="total-box">المجموع الكلي: <span id="final-total" class="total-amount">0</span> دينار</div>
+    <div class="user-info">
+        <input type="text" id="userName" placeholder="اسم الزبون الكريم">
+        <input type="text" id="userAddress" placeholder="عنوان التوصيل أو المنطقة">
+        <input type="text" id="userNote" placeholder="ملاحظات الطلب">
+    </div>
+    <button class="send-btn" onclick="sendWhatsApp()">إرسال الطلب (واتساب) ✅</button>
+</div>
 
-Original URL: [https://codepen.io/car-carc400/pen/raMLYyV](https://codepen.io/car-carc400/pen/raMLYyV).
+<script>
+    // الرابط البرمجي الخاص بك من Google Apps Script
+    const apiURL = "https://script.google.com/macros/s/AKfycbz1w0NQRqIBJQRLu7nZETJ8BCsn-1vh72jHJtACAc16D_qVfnRdXyjlZhKrL0-4oha5yg/exec"; 
 
+    const weightLabels = ["ربع كيلو", "نصف كيلو", "ثلاث أرباع كيلو", "كيلو واحد", "كيلو وربع", "كيلو ونصف", "كيلو وثلاث أرباع", "كيلوين"];
+
+    let menuItems = [
+        { id: 'lamb', name: 'لحم غنم طازج', price: 8000, img: 'https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=100' },
+        { id: 'beef_shrah', name: 'لحم عجل شرح', price: 4500, img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=100' },
+        { id: 'beef_ozm', name: 'لحم عجل عظم', price: 4000, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=100' },
+        { id: 'kebab', name: 'كباب علي الجد', price: 4500, img: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=100' },
+        // تم التأكد من وضع صوره مشوي تكّة هنا
+        { id: 'tikka', name: 'مشوي تكّة', price: 4500, img: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=100' },
+        { id: 'mealak', name: 'مشوي معلاك', price: 4500, img: 'https://images.unsplash.com/photo-1541544537156-7627a7a4aa1c?w=100' }
+    ];
+
+    let cart = {};
+    menuItems.forEach(item => cart[item.id] = -1);
+
+    async function loadPrices() {
+        try {
+            const response = await fetch(apiURL);
+            const data = await response.json();
+            data.forEach(row => {
+                const item = menuItems.find(i => i.id === row.id);
+                if (item) item.price = parseInt(row.price);
+            });
+            renderItems();
+        } catch (e) { 
+            console.error("فشل تحميل الأسعار، سيتم استخدام الافتراضية.");
+            renderItems(); 
+        }
+    }
+
+    function renderItems() {
+        const menuContainer = document.getElementById('full-menu');
+        menuContainer.innerHTML = ''; 
+        let totalSum = 0;
+        menuItems.forEach(item => {
+            const step = cart[item.id];
+            const weightText = step === -1 ? "لم يتم الاختيار" : (weightLabels[step] || calculateExtra(step));
+            const currentItemPrice = step === -1 ? 0 : (step + 1) * item.price;
+            totalSum += currentItemPrice;
+            const displayPrice = step === -1 ? "سعر الربع: " + item.price.toLocaleString() : currentItemPrice.toLocaleString() + " د.ع";
+            menuContainer.innerHTML += `<div class="item-row">
+                    <img src="${item.img}" class="item-img">
+                    <div class="item-content">
+                        <span class="item-name">${item.name}</span>
+                        <div class="controls">
+                            <button class="btn btn-plus" onclick="changeQty('${item.id}', 1)">+</button>
+                            <div class="display-area">
+                                <span class="weight">${weightText}</span>
+                                <span class="price">${displayPrice}</span>
+                            </div>
+                            <button class="btn btn-minus" onclick="changeQty('${item.id}', -1)">-</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('final-total').innerText = totalSum.toLocaleString();
+    }
+
+    function calculateExtra(step) {
+        let q = step + 1; let kg = Math.floor(q / 4); let rem = q % 4;
+        return kg + " كيلو " + (rem > 0 ? "و" + weightLabels[rem-1] : "");
+    }
+
+    function changeQty(id, val) { if (cart[id] + val >= -1) { cart[id] += val; renderItems(); } }
+
+    function sendWhatsApp() {
+        const name = document.getElementById('userName').value;
+        const addr = document.getElementById('userAddress').value;
+        if (!name || !addr) return alert("يرجى إدخال الاسم والعنوان");
+        let msg = `*طلب جديد لمطعم قصابية ومشويات علي الجد*%0A👤 الاسم: ${name}%0A📍 العنوان: ${addr}%0A%0A🍴 الطلبات:%0A`;
+        let hasItems = false;
+        menuItems.forEach(item => {
+            if (cart[item.id] !== -1) {
+                hasItems = true;
+                const q = cart[item.id] + 1;
+                const w = q <= 8 ? weightLabels[cart[item.id]] : calculateExtra(cart[item.id]);
+                msg += `- ${item.name}: ${w} (${(q * item.price).toLocaleString()} د.ع)%0A`;
+            }
+        });
+        if (!hasItems) return alert("يرجى اختيار صنف");
+        msg += `%0A💰 المجموع الكلي: ${document.getElementById('final-total').innerText} دينار`;
+        window.open(`https://wa.me/9647807466488?text=${msg}`);
+    }
+    window.onload = loadPrices;
+</script>
+</body>
+</html>
