@@ -3,101 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منيو مطعمك الذكي</title>
+    <title>قصابية ومشاوي علي الجد</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #1a1a1a; color: white; text-align: center; padding: 20px; }
-        .menu-container { display: flex; flex-direction: column; gap: 20px; max-width: 500px; margin: auto; }
-        .item-row { background: #2a2a2a; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #444; }
-        .item-img { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; }
-        .item-info { flex: 1; text-align: right; }
-        .price-val { color: #ffcc00; font-weight: bold; font-size: 1.2rem; }
-        .controls { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-        button { background: #ffcc00; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .total-section { margin-top: 30px; padding: 20px; background: #333; border-radius: 10px; font-size: 1.5rem; }
+        body { font-family: 'Cairo', sans-serif; background-color: #000; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .header { text-align: center; padding: 20px 0; border-bottom: 2px solid #ffcc00; margin-bottom: 20px; }
+        .item-row { display: flex; align-items: center; background: #1a1a1a; margin-bottom: 15px; border-radius: 12px; padding: 10px; border: 1px solid #333; }
+        .item-img { width: 90px; height: 90px; border-radius: 10px; object-fit: cover; margin-left: 15px; }
+        .item-details { flex-grow: 1; }
+        .item-name { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; display: block; }
+        .price-text { color: #ffcc00; font-size: 1.1rem; }
+        .controls { display: flex; align-items: center; background: #333; border-radius: 8px; padding: 5px; margin-top: 10px; width: fit-content; }
+        .btn { background: #ffcc00; border: none; width: 30px; height: 30px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .display-area { padding: 0 15px; text-align: center; min-width: 100px; }
+        .weight { display: block; font-size: 0.9rem; color: #aaa; }
+        .total-price { font-size: 1.3rem; font-weight: bold; color: #ffcc00; text-align: center; margin-top: 30px; border-top: 2px solid #ffcc00; padding-top: 20px; }
     </style>
 </head>
 <body>
-
-    <h1>قائمة الطعام - قصابية ومشويات علي الجد</h1>
-    
-    <div id="full-menu" class="menu-container">
-        </div>
-
-    <div class="total-section">
-        المجموع الكلي: <span id="final-total">0</span> دينار
+    <div class="container">
+        <div class="header"><h1>قصابية ومشاوي علي الجد</h1></div>
+        <div id="menu-container"></div>
+        <div class="total-price">المجموع الكلي: <span id="final-total">0</span> دينار</div>
     </div>
 
     <script>
-        // رابط الجدول الخاص بك (بصيغة CSV)
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTgeS-1tqU7-pM_RSc_j-v86YvINgYhWwZWggLviGwbYAW/pub?output=csv";
 
-        // قائمة الوجبات مع إضافة الأجنحة الجديدة
         const menuItems = [
-            { id: 'lamb', name: 'لحم غنم', price: 5000, img: 'https://via.placeholder.com/100' },
-            { id: 'beef_shrah', name: 'لحم بقر شرح', price: 4500, img: 'https://via.placeholder.com/100' },
-            { id: 'kebab', name: 'كباب', price: 4500, img: 'https://via.placeholder.com/100' },
-            { id: 'tikka', name: 'تكة', price: 4500, img: 'https://via.placeholder.com/100' },
-            { id: 'mealak', name: 'معلاق', price: 4000, img: 'https://via.placeholder.com/100' },
+            { id: 'lamb', name: 'لحم غنم', price: 5000, img: 'https://telegra.ph/file/99637c3534b123992019c.jpg' },
+            { id: 'beef_shrah', name: 'لحم بقر شرح', price: 4500, img: 'https://telegra.ph/file/99637c3534b123992019c.jpg' },
+            { id: 'kebab', name: 'كباب عراقي', price: 4500, img: 'https://telegra.ph/file/99637c3534b123992019c.jpg' },
+            { id: 'tikka', name: 'تكة لحم', price: 4500, img: 'https://telegra.ph/file/99637c3534b123992019c.jpg' },
+            { id: 'mealak', name: 'معلاق مشوي', price: 4000, img: 'https://telegra.ph/file/99637c3534b123992019c.jpg' },
             { id: 'wings', name: 'أجنحة دجاج مشوية', price: 4000, img: 'https://telegra.ph/file/photo_2026-03-08_20-59-27.jpg' }
         ];
 
         let cart = {};
         menuItems.forEach(item => cart[item.id] = -1);
 
-        async function loadPrices() {
+        async function fetchPrices() {
             try {
-                const response = await fetch(sheetUrl);
-                const data = await response.text();
-                const rows = data.split('\n').slice(1);
-                rows.forEach(row => {
-                    const [id, price] = row.split(',');
+                const res = await fetch(sheetUrl);
+                const text = await res.text();
+                const lines = text.split('\n').slice(1);
+                lines.forEach(line => {
+                    const [id, price] = line.split(',');
                     const item = menuItems.find(i => i.id === id.trim());
                     if (item) item.price = parseInt(price);
                 });
-                renderItems();
-            } catch (e) {
-                console.error("خطأ في التحميل، سيتم استخدام الأسعار الافتراضية");
-                renderItems();
-            }
+                renderMenu();
+            } catch (e) { renderMenu(); }
         }
 
-        function renderItems() {
-            const container = document.getElementById('full-menu');
+        function renderMenu() {
+            const container = document.getElementById('menu-container');
             container.innerHTML = '';
-            let totalSum = 0;
+            let grandTotal = 0;
 
             menuItems.forEach(item => {
                 const step = cart[item.id];
-                const weightLabels = ["ربع", "نصف", "كيلو إلا ربع", "كيلو"];
-                const weightText = step === -1 ? "لم يتم الاختيار" : weightLabels[step];
+                const weights = ["ربع", "نصف", "كيلو إلا ربع", "كيلو"];
+                const currentWeight = step === -1 ? "إختر الكمية" : weights[step];
                 const currentPrice = step === -1 ? 0 : (step + 1) * item.price;
-                totalSum += currentPrice;
+                grandTotal += currentPrice;
 
                 container.innerHTML += `
                     <div class="item-row">
                         <img src="${item.img}" class="item-img">
-                        <div class="item-info">
-                            <h3>${item.name}</h3>
-                            <div class="price-val">سعر الربع: ${item.price.toLocaleString()}</div>
+                        <div class="item-details">
+                            <span class="item-name">${item.name}</span>
+                            <span class="price-text">سعر الربع: ${item.price.toLocaleString()}</span>
                             <div class="controls">
-                                <button onclick="changeQty('${item.id}', 1)">+</button>
-                                <span>${weightText}</span>
-                                <button onclick="changeQty('${item.id}', -1)">-</button>
+                                <button class="btn" onclick="updateQty('${item.id}', 1)">+</button>
+                                <div class="display-area">
+                                    <span class="weight">${currentWeight}</span>
+                                    <span class="price">${currentPrice.toLocaleString()}</span>
+                                </div>
+                                <button class="btn" onclick="updateQty('${item.id}', -1)">-</button>
                             </div>
                         </div>
                     </div>`;
             });
-            document.getElementById('final-total').innerText = totalSum.toLocaleString();
+            document.getElementById('final-total').innerText = grandTotal.toLocaleString();
         }
 
-        function changeQty(id, delta) {
+        function updateQty(id, delta) {
             if (cart[id] + delta >= -1 && cart[id] + delta <= 3) {
                 cart[id] += delta;
-                renderItems();
+                renderMenu();
             }
         }
 
-        loadPrices();
+        fetchPrices();
     </script>
 </body>
 </html>
